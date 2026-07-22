@@ -141,6 +141,9 @@ ADMIN_USERNAME="$ADMIN_USERNAME" ADMIN_PASSWORD="$ADMIN_PASSWORD" "$APP_ROOT/bin
 if getent ahostsv4 "$DOMAIN" >/dev/null 2>&1; then
   certbot --nginx -d "$DOMAIN" --non-interactive --agree-tos --register-unsafely-without-email --redirect || true
 fi
+if [[ -s "/etc/letsencrypt/live/${DOMAIN}/fullchain.pem" ]]; then
+  DOMAIN="$DOMAIN" bash "$SOURCE_DIR/scripts/configure-nginx.sh"
+fi
 
 cat > /root/xpanel-v2-credentials.txt <<EOF
 URL: https://${DOMAIN}
