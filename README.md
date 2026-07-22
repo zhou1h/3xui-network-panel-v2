@@ -29,10 +29,11 @@ flowchart LR
 
 - 管理员登录和 Redis 会话
 - CSRF、Argon2id 密码哈希与 AES-GCM 凭据加密
-- 资源服务器新增、编辑、删除和汇总
+- 资源服务器新增、编辑、删除、全量检测和汇总
 - 节点、客户端、SOCKS5 数量字段
+- 调用节点 3x-ui Reality 扫描器并按延迟排序候选目标
 - PostgreSQL 数据模型与 Ent 迁移
-- Redis 异步任务 Worker
+- Redis 异步资源检测与 Reality 扫描 Worker
 - 任务流水与审计日志基础结构
 - 首次安装随机生成管理员密码
 - systemd、Nginx 和自动证书部署
@@ -115,4 +116,3 @@ DOMAIN=panel.example.com bash scripts/install.sh
 ```
 
 The installer generates a random first-login password and stores it in `/root/xpanel-v2-credentials.txt` on the server.
-
