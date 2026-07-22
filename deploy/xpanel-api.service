@@ -1,0 +1,22 @@
+[Unit]
+Description=XPanel v2 API
+After=network-online.target postgresql.service redis-server.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=xpanel
+Group=xpanel
+EnvironmentFile=/etc/xpanel/xpanel.env
+ExecStart=/opt/xpanel/bin/xpanel-api
+Restart=on-failure
+RestartSec=3
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/xpanel
+
+[Install]
+WantedBy=multi-user.target
+

@@ -1,0 +1,19 @@
+<script setup>
+import { onMounted, reactive, ref } from 'vue'
+import AppShell from '../components/AppShell.vue'
+import { api } from '../lib/api'
+
+const items=ref([]); const busy=ref(false); const show=ref(false); const editing=ref(null)
+const form=reactive({code:'',name:'',host:'',managementUrl:'',accessToken:''})
+async function load(){const {data}=await api.get('/resources');items.value=data.items}
+function open(item=null){editing.value=item; Object.assign(form,item?{...item,accessToken:''}:{code:'',name:'',host:'',managementUrl:'',accessToken:''});show.value=true}
+async function save(){busy.value=true;try{editing.value?await api.put(`/resources/${editing.value.id}`,form):await api.post('/resources',form);show.value=false;await load()}finally{busy.value=false}}
+async function remove(item){if(!confirm(`确定移除资源“${item.name}”？`))return;await api.delete(`/resources/${item.id}`);await load()}
+onMounted(load)
+</script>
+
+<template><AppShell><template #title>资源中心</template>
+  <div class="mb-6 flex items-end justify-between"><div><h2 class="text-2xl font-bold">资源服务器</h2><p class="mt-2 text-sm text-slate-500">保存各 3x-ui 管理入口及接入凭据。</p></div><button class="btn-primary" @click="open()">添加资源</button></div>
+  <div class="space-y-4"><div v-for="item in items" :key="item.id" class="card p-5"><div class="flex flex-wrap items-start justify-between gap-4"><div><div class="flex items-center gap-2"><span class="grid h-9 w-9 place-items-center rounded-xl bg-slate-900 text-sm font-black text-white">{{item.code}}</span><h3 class="font-bold">{{item.name}}</h3><span class="rounded-full px-2.5 py-1 text-xs font-semibold" :class="item.status==='ok'?'bg-emerald-50 text-emerald-600':'bg-slate-100 text-slate-500'">{{item.status==='ok'?'在线':'待检测'}}</span></div><p class="ml-11 mt-2 text-sm text-slate-500">{{item.host}}</p></div><div class="flex gap-2"><button class="btn-secondary" @click="open(item)">编辑</button><button class="btn-secondary text-red-600" @click="remove(item)">移除</button></div></div><div class="mt-5 grid grid-cols-3 gap-3 border-t border-slate-100 pt-4 text-center"><div><b>{{item.nodeCount}}</b><p class="text-xs text-slate-400">节点</p></div><div><b>{{item.clientCount}}</b><p class="text-xs text-slate-400">客户端</p></div><div><b>{{item.socksCount}}</b><p class="text-xs text-slate-400">SOCKS5</p></div></div></div><div v-if="!items.length" class="card py-16 text-center text-sm text-slate-400">尚未添加资源服务器</div></div>
+  <div v-if="show" class="fixed inset-0 z-50 grid place-items-center bg-slate-950/45 p-4" @click.self="show=false"><form @submit.prevent="save" class="card w-full max-w-xl p-6"><div class="mb-5 flex justify-between"><h3 class="text-lg font-bold">{{editing?'编辑资源':'添加资源'}}</h3><button type="button" @click="show=false">✕</button></div><div class="grid gap-4 sm:grid-cols-2"><label><span class="mb-1.5 block text-sm font-semibold">资源编号</span><input v-model.trim="form.code" maxlength="16" class="field" required></label><label><span class="mb-1.5 block text-sm font-semibold">资源名称</span><input v-model.trim="form.name" class="field" required></label><label class="sm:col-span-2"><span class="mb-1.5 block text-sm font-semibold">连接主机</span><input v-model.trim="form.host" class="field" required></label><label class="sm:col-span-2"><span class="mb-1.5 block text-sm font-semibold">管理入口 URL</span><input v-model.trim="form.managementUrl" type="url" class="field"></label><label class="sm:col-span-2"><span class="mb-1.5 block text-sm font-semibold">接入令牌</span><input v-model="form.accessToken" type="password" class="field" :placeholder="editing&&editing.hasAccessToken?'已保存，留空不变':''"></label></div><div class="mt-6 flex justify-end gap-3"><button type="button" class="btn-secondary" @click="show=false">取消</button><button class="btn-primary" :disabled="busy">{{busy?'正在保存…':'保存资源'}}</button></div></form></div>
+</AppShell></template>
