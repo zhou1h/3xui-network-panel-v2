@@ -56,6 +56,13 @@ DOMAIN=panel.example.com bash scripts/install.sh
 
 安装完成后，首次登录信息保存在服务器的 `/root/xpanel-v2-credentials.txt`。
 
+后续更新：
+
+```bash
+cd /opt/3xui-network-panel-v2
+sudo bash scripts/update.sh
+```
+
 ## 本地开发
 
 ```bash
